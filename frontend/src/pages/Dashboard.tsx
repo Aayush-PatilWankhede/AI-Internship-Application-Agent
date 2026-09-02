@@ -201,9 +201,7 @@ export default function Dashboard() {
     try {
       const formData = new FormData();
       formData.append('user_detail_id', selectedResumeId);
-      const response = await apiClient.post('/matching', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const response = await apiClient.post('/matching', formData);
       setMatchingResult(response.data);
     } catch (error: unknown) {
       const detail = (error as { response?: { data?: { detail?: string } } }).response?.data?.detail;

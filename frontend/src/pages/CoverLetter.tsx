@@ -80,7 +80,6 @@ export default function CoverLetter() {
       }
 
       const response = await apiClient.post('/cover-letter-tailoring', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
         responseType: 'blob',
       });
 
@@ -95,7 +94,19 @@ export default function CoverLetter() {
 
       downloadPdf(url);
     } catch (err: unknown) {
-      const detail = (err as { response?: { data?: { detail?: string } } }).response?.data?.detail;
+      let detail: string | undefined;
+      const res = (err as { response?: { data?: unknown } })?.response;
+      if (res?.data instanceof Blob) {
+        try {
+          const text = await res.data.text();
+          const parsed = JSON.parse(text);
+          detail = parsed.detail;
+        } catch {
+          // ignore
+        }
+      } else if (res?.data && typeof res.data === 'object' && 'detail' in res.data) {
+        detail = (res.data as { detail?: string }).detail;
+      }
       setError(detail || 'Failed to generate tailored cover letter');
     } finally {
       setIsGenerating(false);

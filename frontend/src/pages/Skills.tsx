@@ -78,9 +78,7 @@ export default function Skills() {
         formData.append('file', resumeFile);
       }
 
-      const response = await apiClient.post('/skill-gaps', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const response = await apiClient.post('/skill-gaps', formData);
       setResult(response.data);
     } catch (err: unknown) {
       const detail = (err as { response?: { data?: { detail?: string } } }).response?.data?.detail;

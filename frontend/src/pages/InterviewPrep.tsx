@@ -75,9 +75,7 @@ export default function InterviewPrep() {
       if (selectedJob) formData.append('job_id', selectedJob.id);
       if (instructions.trim()) formData.append('instructions', instructions);
 
-      const response = await apiClient.post('/interview-prep', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const response = await apiClient.post('/interview-prep', formData);
       setResult(response.data);
     } catch (err: unknown) {
       const detail = (err as { response?: { data?: { detail?: string } } }).response?.data?.detail;

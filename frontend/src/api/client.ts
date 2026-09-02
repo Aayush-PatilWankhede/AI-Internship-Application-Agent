@@ -18,7 +18,11 @@ apiClient.interceptors.request.use((config) => {
   // Avoid Content-Type on GET/HEAD — it triggers a CORS preflight that ngrok can block.
   if (method === 'get' || method === 'head') {
     delete config.headers['Content-Type'];
-  } else if (!isFormData) {
+  } else if (isFormData) {
+    // For multipart FormData uploads, do NOT set Content-Type so the browser
+    // attaches the required boundary parameter automatically.
+    delete config.headers['Content-Type'];
+  } else if (!config.headers['Content-Type']) {
     config.headers['Content-Type'] = 'application/json';
   }
 

@@ -125,9 +125,7 @@ export const useDocumentStore = create<DocumentState>((set) => ({
     const formData = new FormData();
     formData.append('file', file);
     try {
-      const response = await apiClient.post('/resumes/parse', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const response = await apiClient.post('/resumes/parse', formData);
       const parsed = response.data as ParsedResume;
       set((state) => ({ resumes: [parsed, ...state.resumes] }));
       return parsed;
@@ -141,9 +139,7 @@ export const useDocumentStore = create<DocumentState>((set) => ({
     const formData = new FormData();
     formData.append('file', file);
     try {
-      const response = await apiClient.post('/cover-letters/parse', formData, {
-        headers: { 'Content-Type': 'multipart/form-data' },
-      });
+      const response = await apiClient.post('/cover-letters/parse', formData);
       const parsed = response.data as ParsedCoverLetter;
       set((state) => ({ coverLetters: [parsed, ...state.coverLetters] }));
       return parsed;
