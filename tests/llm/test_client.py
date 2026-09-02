@@ -53,6 +53,7 @@ class TestOllamaStructuredExtractionClient:
             base_url="http://localhost:11434",
         )
         fake_model = FakeChatModel(runnable)
+        client._json_model = None
         client._model = fake_model  # type: ignore[assignment]
         return client, fake_model
 
