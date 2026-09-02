@@ -35,9 +35,7 @@ export default function Jobs() {
     setScanMessage('');
     const result = await scrapeJobs();
     if (result) {
-      setScanMessage(
-        `Scraped ${result.scraped_count} jobs · ${result.db_inserted_count} saved to DB · ${result.rag_indexed_count} indexed in RAG`
-      );
+      setScanMessage(`Found and loaded ${result.scraped_count} internship opportunities.`);
       await fetchJobs();
     } else {
       setScanMessage('Scan failed. Please try again.');

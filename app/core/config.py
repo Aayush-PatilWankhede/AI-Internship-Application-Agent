@@ -3,6 +3,7 @@
 from functools import lru_cache
 from pathlib import Path
 
+from pydantic import field_validator
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -31,6 +32,25 @@ class Settings(BaseSettings):
     refresh_cookie_name: str = "refresh_token"
 
     cors_origins: list[str] = ["http://localhost:5173", "http://localhost:3000"]
+
+    @field_validator("cors_origins", mode="before")
+    @classmethod
+    def parse_cors_origins(cls, value: object) -> list[str]:
+        """Strip trailing slashes from origins and accept comma-separated strings."""
+        if isinstance(value, str):
+            value_str = value.strip()
+            if value_str.startswith("[") and value_str.endswith("]"):
+                import json
+                try:
+                    parsed = json.loads(value_str)
+                    if isinstance(parsed, list):
+                        return [str(origin).strip().rstrip("/") for origin in parsed if str(origin).strip()]
+                except Exception:
+                    pass
+            return [origin.strip().rstrip("/") for origin in value_str.split(",") if origin.strip()]
+        if isinstance(value, (list, tuple, set)):
+            return [str(origin).strip().rstrip("/") for origin in value if str(origin).strip()]
+        return value  # type: ignore[return-value]
 
     latex_compiler_path: str = "pdflatex"
     latex_compile_timeout_seconds: int = 60

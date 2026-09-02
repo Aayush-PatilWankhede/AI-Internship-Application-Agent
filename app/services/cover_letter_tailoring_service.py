@@ -399,6 +399,8 @@ class CoverLetterTailoringService:
                     stdin=subprocess.DEVNULL,
                     capture_output=True,
                     text=True,
+                    encoding="utf-8",
+                    errors="replace",
                     timeout=self._settings.latex_compile_timeout_seconds,
                 )
             except subprocess.TimeoutExpired as exc:

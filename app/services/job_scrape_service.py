@@ -52,13 +52,21 @@ class JobScrapeService:
             asyncio.to_thread(self._ingest_rag_sync, raw_jobs, reset_vectors),
         )
 
+        if rag_indexed_count == 0 and scraped_count > 0:
+            message = (
+                f"Scrape complete: {db_inserted_count} jobs saved to database. "
+                "Vector store indexing was skipped because Ollama/embeddings are unavailable."
+            )
+        else:
+            message = (
+                "Scrape complete: jobs saved to Postgres and indexed in RAG in parallel"
+            )
+
         return ScrapeJobsResponse(
             scraped_count=scraped_count,
             db_inserted_count=db_inserted_count,
             rag_indexed_count=rag_indexed_count,
-            message=(
-                "Scrape complete: jobs saved to Postgres and indexed in RAG in parallel"
-            ),
+            message=message,
         )
 
     @staticmethod
@@ -77,6 +85,10 @@ class JobScrapeService:
     @staticmethod
     def _ingest_rag_sync(raw_jobs: list[dict[str, Any]], reset_vectors: bool) -> int:
         """Index the same scrape batch into ChromaDB from a worker thread."""
-        count = IngestionPipeline(job_source=StaticJobSource(raw_jobs)).run(reset=reset_vectors)
-        logger.info("Indexed %s jobs into RAG", count)
-        return count
+        try:
+            count = IngestionPipeline(job_source=StaticJobSource(raw_jobs)).run(reset=reset_vectors)
+            logger.info("Indexed %s jobs into RAG", count)
+            return count
+        except Exception as exc:
+            logger.warning("RAG indexing skipped during job scrape: %s", exc)
+            return 0
